@@ -1,5 +1,6 @@
 headers = llvm-c/Core.h llvm-c/Target.h llvm-c/Analysis.h llvm-c/BitWriter.h \
-    llvm-c/BitReader.h llvm-c/Linker.h DebugInfoC.h
+    llvm-c/BitReader.h llvm-c/Linker.h DebugInfoC.h llvm-c/lto.h \
+    llvm-c/LinkTimeOptimizer.h llvm-c/Target.h llvm-c/TargetMachine.h
 
 headerFilter = llvm-c/* DebugInfoC.h
 
@@ -18,7 +19,7 @@ linkerOpts = -fvisibility-inlines-hidden \
     -DNDEBUG -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS \
     -ldebugInfo -lLLVMTarget -lLLVMMC -lLLVMLinker -lLLVMTransformUtils -lLLVMBitWriter \
     -lLLVMBitReader -lLLVMAnalysis -lLLVMProfileData -lLLVMObject -lLLVMMCParser -lLLVMMC \
-    -lLLVMCore -lLLVMBinaryFormat -lLLVMSupport -lLLVMDemangle
+    -lLLVMCore -lLLVMBinaryFormat -lLLVMSupport -lLLVMDemangle -lLLVMLTO -lLLVMTarget
 
 # ./llvm-config --libs analysis bitreader bitwriter core linker target
 
