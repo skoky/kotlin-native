@@ -87,6 +87,8 @@ interface WasmConfigurables : NonAppleConfigurables {
     val optNooptFlags get() = targetList("optNooptFlags")
     val optOptFlags get()   = targetList("optOptFlags")
     val optDebugFlags get() = targetList("optDebugFlags")
+
+    val lldFlags get()      = targetList("lld")
 }
 
 interface ZephyrConfigurables : NonAppleConfigurables {

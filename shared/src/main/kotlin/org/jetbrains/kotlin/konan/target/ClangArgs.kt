@@ -142,12 +142,12 @@ class ClangArgs(private val configurables: Configurables) : Configurables by con
             KonanTarget.WASM32 ->
                 listOf("-DKONAN_WASM=1", "-DKONAN_NO_FFI=1", "-DKONAN_NO_THREADS=1", "-DKONAN_NO_EXCEPTIONS=1",
                         "-DKONAN_INTERNAL_DLMALLOC=1", "-DKONAN_INTERNAL_SNPRINTF=1",
-                        "-DKONAN_INTERNAL_NOW=1", "-DKONAN_NO_MEMMEM", "-DKONAN_NO_CTORS_SECTION")
+                        "-DKONAN_INTERNAL_NOW=1", "-DKONAN_NO_MEMMEM", "-DKONAN_NO_CTORS_SECTION=1")
 
             is KonanTarget.ZEPHYR ->
                 listOf( "-DKONAN_ZEPHYR=1", "-DKONAN_NO_FFI=1", "-DKONAN_NO_THREADS=1", "-DKONAN_NO_EXCEPTIONS=1",
                         "-DKONAN_NO_MATH=1", "-DKONAN_INTERNAL_SNPRINTF=1", "-DKONAN_INTERNAL_NOW=1",
-                        "-DKONAN_NO_MEMMEM=1", "-DKONAN_NO_CTORS_SECTION=1")
+                        "-DKONAN_NO_MEMMEM=1", "-DKONAN_NO_CTORS_SECTION=1", "--target=wasm32-unknown-unknown")
         }
 
     private val host = HostManager.host

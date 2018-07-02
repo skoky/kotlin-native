@@ -23,11 +23,7 @@ var globalBase = 0; // TODO: Is there any way to obtain global_base from JavaScr
 var konanStackTop;
 
 function isBrowser() {
-    if (typeof window === 'undefined') {
-        return false;
-    } else {
-        return true;
-    };
+    return typeof window !== 'undefined';
 }
 
 var runtime;
@@ -73,7 +69,7 @@ function utf8decode(s) {
 }
 
 function fromString(string, pointer) {
-    for (i = 0; i < string.length; i++) {
+    for (var i = 0; i < string.length; i++) {
         heap[pointer + i] = string.charCodeAt(i);
     }
     heap[pointer + string.length] = 0;
@@ -243,9 +239,9 @@ function instantiateAndRun(arraybuffer, args) {
 
 // Instantiate module in d8 synchronously.
 function instantiateAndRunSync(arraybuffer, args) {
-    var module = WebAssembly.Module(arraybuffer)
+    var module = new WebAssembly.Module(arraybuffer);
     setupModule(module);
-    var instance = WebAssembly.Instance(module, konan_dependencies);
+    var instance = new WebAssembly.Instance(module, konan_dependencies);
     return invokeModule(instance, args)
 }
 
@@ -255,7 +251,7 @@ konan.moduleEntry = function (args) {
             throw new Error('Could not find the wasm attribute pointing to the WebAssembly binary.') ;
         }
         var filename = document.currentScript.getAttribute("wasm");
-        fetch(filename).then( function(response) {
+        fetch(filename).then(function(response) {
             return response.arrayBuffer();
         }).then(function(arraybuffer) { 
             instantiateAndRun(arraybuffer, [filename]); 
@@ -266,5 +262,5 @@ konan.moduleEntry = function (args) {
         var exitStatus = instantiateAndRunSync(arrayBuffer, args);
         quit(exitStatus);
     }
-}
+};
 
