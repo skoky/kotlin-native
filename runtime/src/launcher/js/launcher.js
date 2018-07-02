@@ -183,7 +183,7 @@ var konan_dependencies = {
             // Approximate it with write() to stdout for now.
             runtime.write(utf8decode(toString(str)));
         },
-        memory: new WebAssembly.Memory({ initial: 256, maximum: 16384 })
+        memory: new WebAssembly.Memory({ initial: 256 })
     }
 };
 
@@ -191,9 +191,9 @@ function linkJavaScriptLibraries() {
     konan.libraries.forEach ( function (library) {
         for (var property in library) {
             konan_dependencies.env[property] = library[property];
-        };
+        }
     });
-};
+}
 
 function invokeModule(inst, args) {
     if (args.length < 1) print_usage();
@@ -201,7 +201,7 @@ function invokeModule(inst, args) {
 
     instance = inst;
 
-    memory = konan_dependencies.env.memory
+    memory = konan_dependencies.env.memory;
     heap = new Uint8Array(konan_dependencies.env.memory.buffer);
     konanStackTop = stackTop();
 

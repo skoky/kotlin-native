@@ -29,8 +29,7 @@ OBJ_GETTER(setupArgs, int argc, const char** argv) {
   ObjHeader* result = AllocArrayInstance(theArrayTypeInfo, argc - 1, OBJ_RESULT);
   ArrayHeader* array = result->array();
   for (int index = 1; index < argc; index++) {
-    CreateStringFromCString(
-      argv[index], ArrayAddressOfElementAt(array, index - 1));
+    CreateStringFromCString(argv[index], ArrayAddressOfElementAt(array, index - 1));
   }
   return result;
 }
@@ -51,7 +50,6 @@ extern "C" RUNTIME_USED int Init_and_run_start(int argc, const char** argv, int 
 #endif
 
   Kotlin_initRuntimeIfNeeded();
-
   KInt exitStatus = Konan_run_start(argc, argv);
 
   if (memoryDeInit) Kotlin_deinitRuntimeIfNeeded();

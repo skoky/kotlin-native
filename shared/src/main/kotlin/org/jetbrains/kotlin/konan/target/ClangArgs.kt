@@ -79,11 +79,19 @@ class ClangArgs(private val configurables: Configurables) : Configurables by con
                             "-I$absoluteTargetSysRoot/usr/include/c++/4.9.x/aarch64-linux-android")
 
                 KonanTarget.WASM32 ->
-                    listOf("-target", targetArg!!, "-fno-rtti", "-fno-exceptions",
-                            "-D_LIBCPP_ABI_VERSION=2", "-D_LIBCPP_NO_EXCEPTIONS=1",
-                            "-nostdinc", "-Xclang", "-nobuiltininc", "-Xclang", "-nostdsysteminc",
-                            "-Xclang", "-isystem$absoluteTargetSysRoot/include/libcxx", "-Xclang", "-isystem$absoluteTargetSysRoot/lib/libcxxabi/include",
-                            "-Xclang", "-isystem$absoluteTargetSysRoot/include/compat", "-Xclang", "-isystem$absoluteTargetSysRoot/include/libc")
+                    listOf("-target", targetArg!!,
+                            "-fno-rtti",
+                            "-fno-exceptions",
+                            "-fvisibility=default",
+                            "-D_LIBCPP_ABI_VERSION=2",
+                            "-D_LIBCPP_NO_EXCEPTIONS=1",
+                            "-nostdinc",
+                            "-Xclang", "-nobuiltininc",
+                            "-Xclang", "-nostdsysteminc",
+                            "-Xclang", "-isystem$absoluteTargetSysRoot/include/libcxx",
+                            "-Xclang", "-isystem$absoluteTargetSysRoot/lib/libcxxabi/include",
+                            "-Xclang", "-isystem$absoluteTargetSysRoot/include/compat",
+                            "-Xclang", "-isystem$absoluteTargetSysRoot/include/libc")
 
                 is KonanTarget.ZEPHYR ->
                     listOf("-target", targetArg!!,
@@ -147,7 +155,7 @@ class ClangArgs(private val configurables: Configurables) : Configurables by con
             is KonanTarget.ZEPHYR ->
                 listOf( "-DKONAN_ZEPHYR=1", "-DKONAN_NO_FFI=1", "-DKONAN_NO_THREADS=1", "-DKONAN_NO_EXCEPTIONS=1",
                         "-DKONAN_NO_MATH=1", "-DKONAN_INTERNAL_SNPRINTF=1", "-DKONAN_INTERNAL_NOW=1",
-                        "-DKONAN_NO_MEMMEM=1", "-DKONAN_NO_CTORS_SECTION=1", "--target=wasm32-unknown-unknown")
+                        "-DKONAN_NO_MEMMEM=1", "-DKONAN_NO_CTORS_SECTION=1")
         }
 
     private val host = HostManager.host
