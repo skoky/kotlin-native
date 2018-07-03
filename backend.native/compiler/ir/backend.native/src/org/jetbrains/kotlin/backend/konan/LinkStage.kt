@@ -106,7 +106,7 @@ internal class LinkStage(val context: Context) {
             else -> configurables.llcNooptFlags
         } + llvmProfilingFlags()).toTypedArray()
         val combinedS = temporary("combined", ".wasm")
-        targetTool("llc", optimizedBc, "-o", combinedS, *llcFlags, "-mtriple=wasm32-unknown-unknown-wasm", "-filetype=obj")
+        targetTool("llc", optimizedBc, "-o", combinedS, *llcFlags, "-filetype=obj")
         targetTool("wasm-ld", combinedS, "-o", "r.wasm", *configurables.lldFlags.toTypedArray())
         return "r.wasm"
     }
