@@ -283,14 +283,17 @@ uint64_t getTimeMicros() {
 #define PAGE_ALIGN(value) ((value + WASM_PAGEMASK) & ~(WASM_PAGEMASK))
 #define IN_PAGES(value) (value >> WASM_PAGESIZE_EXPONENT)
 
+extern "C" void Konan_update_heap();
+
 int32_t Konan_heap_upper() {
-//  konan::consolePrintf("current_memory = %d\n", __builtin_wasm_current_memory());
   return __builtin_wasm_current_memory();
 }
-int32_t Konan_heap_lower() {
-  return 0;
+
+int32_t Konan_heap_grow(unsigned long delta) {
+  int32_t oldLength = __builtin_wasm_grow_memory(delta);
+  Konan_update_heap();
+  return oldLength;
 }
-extern "C" int32_t Konan_heap_grow(unsigned long);
 
 void* moreCore(int size) {
     static int32_t sbrk_top = -1;
@@ -305,9 +308,9 @@ void* moreCore(int size) {
     }
     size = PAGE_ALIGN(size);
     int32_t old_sbrk_top = sbrk_top;
-    long excess = sbrk_top + size - PAGE_ALIGN(Konan_heap_upper());
-    if (excess > 0) {
-        Konan_heap_grow(IN_PAGES(PAGE_ALIGN(excess)));
+    long delta = sbrk_top + size - PAGE_ALIGN(Konan_heap_upper());
+    if (delta > 0) {
+        Konan_heap_grow(IN_PAGES(PAGE_ALIGN(delta)));
     }
     sbrk_top = sbrk_top + size;
     return (void *) old_sbrk_top;

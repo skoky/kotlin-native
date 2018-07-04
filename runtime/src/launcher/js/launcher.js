@@ -132,12 +132,8 @@ let konan_dependencies = {
             fromString(utf8encode(readline() + '\n'), str);
             return str;
         },
-        Konan_heap_grow: function (pages) {
-            // The buffer is allocated anew on calls to grow(),
-            // so renew the heap array.
-            let oldLength = memory.grow(pages);
+        Konan_update_heap: function() {
             heap = new Uint8Array(memory.buffer);
-            return oldLength;
         },
         Konan_abort: function (pointer) {
             throw new Error("Konan_abort(" + utf8decode(toString(pointer)) + ")");
