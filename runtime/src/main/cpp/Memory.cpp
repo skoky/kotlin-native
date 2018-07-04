@@ -501,8 +501,7 @@ inline void processFinalizerQueue(MemoryState* state) {
 }
 #endif
 
-inline void scheduleDestroyContainer(
-    MemoryState* state, ContainerHeader* container) {
+inline void scheduleDestroyContainer(MemoryState* state, ContainerHeader* container) {
 #if USE_GC
   state->finalizerQueue->push_front(container);
   // We cannot clean finalizer queue while in GC.
@@ -879,16 +878,13 @@ void FreeAggregatingFrozenContainer(ContainerHeader* container) {
 void FreeContainer(ContainerHeader* container) {
   RuntimeAssert(!container->permanent(), "this kind of container shalln't be freed");
   auto state = memoryState;
-
   CONTAINER_FREE_EVENT(state, container)
 
   if (isAggregatingFrozenContainer(container)) {
     FreeAggregatingFrozenContainer(container);
     return;
   }
-
   runDeallocationHooks(container);
-
   // Now let's clean all object's fields in this container.
   traverseContainerObjectFields(container, [](ObjHeader** location) {
     UpdateRef(location, nullptr);
@@ -897,8 +893,9 @@ void FreeContainer(ContainerHeader* container) {
   // And release underlying memory.
   if (isFreeable(container)) {
     container->setColor(CONTAINER_TAG_GC_BLACK);
-    if (!container->buffered())
+    if (!container->buffered()) {
       scheduleDestroyContainer(state, container);
+    }
   }
 }
 

@@ -275,14 +275,6 @@ uint64_t getTimeMicros() {
 
 #if KONAN_WASM
 
-// This one is an interface to query module.env.memory.buffer.byteLength
-unsigned long Konan_heap_upper() {
-  return __builtin_wasm_current_memory();
-}
-unsigned long Konan_heap_lower() {
-  return 0;
-}
-extern "C" unsigned long Konan_heap_grow(unsigned long);
 
 #define MFAIL ((void*) ~(size_t)0)
 #define WASM_PAGESIZE_EXPONENT 16
@@ -291,33 +283,34 @@ extern "C" unsigned long Konan_heap_grow(unsigned long);
 #define PAGE_ALIGN(value) ((value + WASM_PAGEMASK) & ~(WASM_PAGEMASK))
 #define IN_PAGES(value) (value >> WASM_PAGESIZE_EXPONENT)
 
+int32_t Konan_heap_upper() {
+//  konan::consolePrintf("current_memory = %d\n", __builtin_wasm_current_memory());
+  return __builtin_wasm_current_memory();
+}
+int32_t Konan_heap_lower() {
+  return 0;
+}
+extern "C" int32_t Konan_heap_grow(unsigned long);
+
 void* moreCore(int size) {
-    static void* sbrk_top = MFAIL;
-    konan::consolePrintf("Required %d, sbrk_top = %d \n", size, sbrk_top);
+    static int32_t sbrk_top = -1;
 
-    if (sbrk_top == MFAIL) {
-        konan::consolePrintf("Initialize moreCore with %d\n", Konan_heap_lower());
-        sbrk_top = (void*)PAGE_ALIGN(Konan_heap_lower());
+    if (sbrk_top == -1) {
+        sbrk_top = PAGE_ALIGN(Konan_heap_upper());
     }
-
     if (size == 0) {
-        konan::consolePrintf("No need for more core\n");
-        return sbrk_top;
+        return (void *) sbrk_top;
     } else if (size < 0) {
-        konan::consolePrintf("Negative core?!\n");
         return MFAIL;
     }
     size = PAGE_ALIGN(size);
-    void* old_sbrk_top = sbrk_top;
-    long excess = (char*)sbrk_top + size - (char*)Konan_heap_upper();
-    konan::consolePrintf("Excess = %ld\n", excess);
+    int32_t old_sbrk_top = sbrk_top;
+    long excess = sbrk_top + size - PAGE_ALIGN(Konan_heap_upper());
     if (excess > 0) {
-        konan::consolePrintf("Pages required: %ld\n", IN_PAGES(PAGE_ALIGN(excess)));
         Konan_heap_grow(IN_PAGES(PAGE_ALIGN(excess)));
     }
-    sbrk_top = (char*)sbrk_top + size;
-    konan::consolePrintf("New sbrk_top: %d\n", sbrk_top);
-    return old_sbrk_top;
+    sbrk_top = sbrk_top + size;
+    return (void *) old_sbrk_top;
 }
 
 // dlmalloc wants to know the page size.
