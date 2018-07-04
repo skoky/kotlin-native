@@ -88,25 +88,26 @@ internal class LinkStage(val context: Context) {
 
     private fun bitcodeToWasm(bitcodeFiles: List<BitcodeFile>): String {
         val configurables = platform.configurables as WasmConfigurables
-
-        val combinedBc = temporary("combined", ".bc")
-        hostLlvmTool("llvm-link", *bitcodeFiles.toTypedArray(), "-o", combinedBc)
-
+//
+//        val combinedBc = temporary("combined", ".bc")
+//        hostLlvmTool("llvm-link", *bitcodeFiles.toTypedArray(), "-o", combinedBc)
+//
         val optFlags = (configurables.optFlags + when {
             optimize -> configurables.optOptFlags
             debug -> configurables.optDebugFlags
             else -> configurables.optNooptFlags
         } + llvmProfilingFlags()).toTypedArray()
-        val optimizedBc = temporary("optimized", ".bc")
-        targetTool("opt", combinedBc, "-o", optimizedBc, *optFlags)
-
-        val llcFlags = (configurables.llcFlags + when {
-            optimize -> configurables.llcOptFlags
-            debug -> configurables.llcDebugFlags
-            else -> configurables.llcNooptFlags
-        } + llvmProfilingFlags()).toTypedArray()
+//        val optimizedBc = temporary("optimized", ".bc")
+//        targetTool("opt", combinedBc, "-o", optimizedBc, *optFlags)
+//
+//        val llcFlags = (configurables.llcFlags + when {
+//            optimize -> configurables.llcOptFlags
+//            debug -> configurables.llcDebugFlags
+//            else -> configurables.llcNooptFlags
+//        } + llvmProfilingFlags()).toTypedArray()
         val combinedS = temporary("combined", ".wasm")
-        targetTool("llc", optimizedBc, "-o", combinedS, *llcFlags, "-filetype=obj")
+//        targetTool("llc", optimizedBc, "-o", combinedS, *llcFlags, "-filetype=obj")
+        targetTool("llvm-lto", *bitcodeFiles.toTypedArray(), "-o", combinedS, *optFlags, "-target-abi", "wasm32-unknown-unknown-wasm")
         targetTool("wasm-ld", combinedS, "-o", "r.wasm", *configurables.lldFlags.toTypedArray())
         return "r.wasm"
     }

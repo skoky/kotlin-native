@@ -20,8 +20,6 @@ let memory;
 let global_arguments;
 const globalBase = 0; // TODO: Is there any way to obtain global_base from JavaScript?
 
-let konanStackTop;
-
 function isBrowser() {
     return typeof window !== 'undefined';
 }
@@ -118,16 +116,8 @@ function int32ToHeap(value, pointer) {
 }
 
 function doubleToReturnSlot(value) {
-    var twoInts = doubleToTwoInts(value);
+    const twoInts = doubleToTwoInts(value);
     instance.exports.ReturnSlot_setDouble(twoInts.upper, twoInts.lower);
-}
-
-function stackTop() {
-    // Read the value module's `__stack_pointer` is initialized with.
-    // It is the very first static in .data section.
-    let addr = (globalBase === 0 ? 4 : globalBase);
-    let fourBytes = heap.buffer.slice(addr, addr + 4);
-    return new Uint32Array(fourBytes)[0];
 }
 
 let konan_dependencies = {
@@ -141,12 +131,6 @@ let konan_dependencies = {
             // Browsers cant read from console at all.
             fromString(utf8encode(readline() + '\n'), str);
             return str;
-        },
-        Konan_heap_upper: function () {
-            return memory.buffer.byteLength;
-        },
-        Konan_heap_lower: function () {
-            return konanStackTop;
         },
         Konan_heap_grow: function (pages) {
             // The buffer is allocated anew on calls to grow(),
@@ -183,8 +167,7 @@ let konan_dependencies = {
             // TODO: There is no writeErr() in d8.
             // Approximate it with write() to stdout for now.
             runtime.write(utf8decode(toString(str)));
-        },
-        memory: new WebAssembly.Memory({initial: 256})
+        }
     }
 };
 
@@ -202,9 +185,8 @@ function invokeModule(inst, args) {
 
     instance = inst;
 
-    memory = konan_dependencies.env.memory;
+    memory = instance.exports.memory;
     heap = new Uint8Array(memory.buffer);
-    konanStackTop = stackTop();
 
     let exit_status = 0;
 

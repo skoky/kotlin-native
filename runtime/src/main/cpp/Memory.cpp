@@ -55,7 +55,7 @@ constexpr container_size_t kObjectAlignment = 8;
 #if USE_GC
 // Collection threshold default (collect after having so many elements in the
 // release candidates set).
-constexpr size_t kGcThreshold = 4 * 1024;
+constexpr size_t kGcThreshold = 256;
 #if GC_ERGONOMICS
 // Ergonomic thresholds.
 // If GC to computations time ratio is above that value,

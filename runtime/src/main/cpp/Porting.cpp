@@ -276,8 +276,12 @@ uint64_t getTimeMicros() {
 #if KONAN_WASM
 
 // This one is an interface to query module.env.memory.buffer.byteLength
-extern "C" unsigned long Konan_heap_upper();
-extern "C" unsigned long Konan_heap_lower();
+unsigned long Konan_heap_upper() {
+  return __builtin_wasm_current_memory();
+}
+unsigned long Konan_heap_lower() {
+  return 0;
+}
 extern "C" unsigned long Konan_heap_grow(unsigned long);
 
 #define MFAIL ((void*) ~(size_t)0)
@@ -288,30 +292,31 @@ extern "C" unsigned long Konan_heap_grow(unsigned long);
 #define IN_PAGES(value) (value >> WASM_PAGESIZE_EXPONENT)
 
 void* moreCore(int size) {
-    static int initialized = 0;
     static void* sbrk_top = MFAIL;
-    static void* upperHeapLimit = MFAIL;
+    konan::consolePrintf("Required %d, sbrk_top = %d \n", size, sbrk_top);
 
-    if (!initialized) {
+    if (sbrk_top == MFAIL) {
+        konan::consolePrintf("Initialize moreCore with %d\n", Konan_heap_lower());
         sbrk_top = (void*)PAGE_ALIGN(Konan_heap_lower());
-        initialized = 1;
     }
 
     if (size == 0) {
+        konan::consolePrintf("No need for more core\n");
         return sbrk_top;
     } else if (size < 0) {
+        konan::consolePrintf("Negative core?!\n");
         return MFAIL;
     }
-
     size = PAGE_ALIGN(size);
-
     void* old_sbrk_top = sbrk_top;
     long excess = (char*)sbrk_top + size - (char*)Konan_heap_upper();
+    konan::consolePrintf("Excess = %ld\n", excess);
     if (excess > 0) {
+        konan::consolePrintf("Pages required: %ld\n", IN_PAGES(PAGE_ALIGN(excess)));
         Konan_heap_grow(IN_PAGES(PAGE_ALIGN(excess)));
     }
     sbrk_top = (char*)sbrk_top + size;
-
+    konan::consolePrintf("New sbrk_top: %d\n", sbrk_top);
     return old_sbrk_top;
 }
 
