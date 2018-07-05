@@ -136,6 +136,8 @@ abstract class KonanCompileTask: KonanBuildingTask(), KonanCompileSpec {
         addKey("-nodefaultlibs", noDefaultLibs)
         addKey("-Xmulti-platform", enableMultiplatform)
 
+        addArg("-friend-modules", libraries.friends.joinToString(File.pathSeparator))
+
         addAll(extraOpts)
 
         allSourceFiles.mapTo(this) { it.canonicalPath }
